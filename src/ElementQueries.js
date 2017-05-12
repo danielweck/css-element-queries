@@ -11,6 +11,7 @@
         module.exports = factory(require('./ResizeSensor.js'));
     } else {
         root.ElementQueries = factory(root.ResizeSensor);
+        root.ElementQueries.listen();
     }
 }(this, function (ResizeSensor) {
 
@@ -414,7 +415,7 @@
         };
 
         this.detach = function() {
-            if (!this.withTracking) {
+            if (!trackingActive) {
                 throw 'withTracking is not enabled. We can not detach elements since we don not store it.' +
                 'Use ElementQueries.withTracking = true; before domready or call ElementQueryes.update(true).';
             }
@@ -500,15 +501,6 @@
     ElementQueries.listen = function() {
         domLoaded(ElementQueries.init);
     };
-
-    // make available to common module loader
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-        module.exports = ElementQueries;
-    }
-    else {
-        window.ElementQueries = ElementQueries;
-        ElementQueries.listen();
-    }
 
     return ElementQueries;
 
