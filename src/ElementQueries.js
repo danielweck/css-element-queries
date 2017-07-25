@@ -13,7 +13,7 @@
         root.ElementQueries = factory(root.ResizeSensor);
         root.ElementQueries.listen();
     }
-}(this, function (ResizeSensor) {
+}(typeof window !== 'undefined' ? window : this, function (ResizeSensor) {
 
     /**
      *
@@ -367,6 +367,8 @@
                         }
                     } else if (4 === rules[i].type) {
                         readRules(rules[i].cssRules || rules[i].rules);
+                    } else if (3 === rules[i].type) {
+                        readRules(rules[i].styleSheet.cssRules);
                     }
                 }
             }
