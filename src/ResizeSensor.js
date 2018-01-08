@@ -54,6 +54,26 @@
     }
 
     /**
+    * Get element size
+    * @param {HTMLElement} element
+    * @returns {Object} {width, height}
+    */
+    function getElementSize(element) {
+        if (!element.getBoundingClientRect) {
+            return {
+                width: element.offsetWidth,
+                height: element.offsetHeight
+            }
+        }
+
+        var rect = element.getBoundingClientRect();
+        return {
+            width: Math.round(rect.width),
+            height: Math.round(rect.height)
+        }
+    }
+
+    /**
      * Class for dimension change detection.
      *
      * @param {Element|Element[]|Elements|jQuery} element
@@ -108,8 +128,9 @@
             element.resizedAttached.add(resized);
 
             element.resizeSensor = document.createElement('div');
+            element.resizeSensor.dir = 'ltr';
             element.resizeSensor.className = 'resize-sensor';
-            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
+            var style = 'position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
             var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
 
             element.resizeSensor.style.cssText = style;
@@ -130,8 +151,9 @@
             var expandChild = expand.childNodes[0];
             var shrink = element.resizeSensor.childNodes[1];
             var dirty, rafId, newWidth, newHeight;
-            var lastWidth = element.offsetWidth;
-            var lastHeight = element.offsetHeight;
+            var size = getElementSize(element);
+            var lastWidth = size.width;
+            var lastHeight = size.height;
 
             var reset = function() {
                 expandChild.style.width = '100000px';
@@ -143,8 +165,6 @@
                 shrink.scrollLeft = 100000;
                 shrink.scrollTop = 100000;
             };
-
-            reset();
 
             var onResized = function() {
                 rafId = 0;
@@ -160,8 +180,9 @@
             };
 
             var onScroll = function() {
-                newWidth = element.offsetWidth;
-                newHeight = element.offsetHeight;
+                var size = getElementSize(element);
+                var newWidth = size.width;
+                var newHeight = size.height;
                 dirty = newWidth != lastWidth || newHeight != lastHeight;
 
                 if (dirty && !rafId) {
@@ -181,6 +202,9 @@
 
             addEvent(expand, 'scroll', onScroll);
             addEvent(shrink, 'scroll', onScroll);
+            
+			// Fix for custom Elements
+			requestAnimationFrame(reset);
         }
 
         forEachElement(element, function(elem){
@@ -194,7 +218,7 @@
 
     ResizeSensor.detach = function(element, ev) {
         forEachElement(element, function(elem){
-            if (!elem) return
+            if (!elem) return;
             if(elem.resizedAttached && typeof ev == "function"){
                 elem.resizedAttached.remove(ev);
                 if(elem.resizedAttached.length()) return;
