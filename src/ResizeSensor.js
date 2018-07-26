@@ -83,9 +83,9 @@
      * @constructor
      */
     var ResizeSensor = function(element, callback) {
-       
+
         var observer;
-       
+
         /**
          *
          * @constructor
@@ -134,7 +134,7 @@
             element.resizeSensor = document.createElement('div');
             element.resizeSensor.dir = 'ltr';
             element.resizeSensor.className = 'resize-sensor';
-            var style = 'position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
+            var style = 'position: absolute; left: -10px; top: -10px; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden; max-width: 100%';
             var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
 
             element.resizeSensor.style.cssText = style;
@@ -147,7 +147,8 @@
                 '</div>';
             element.appendChild(element.resizeSensor);
 
-            var position = window.getComputedStyle(element).getPropertyValue('position');
+            var computedStyle = window.getComputedStyle(element);
+            var position = computedStyle ? computedStyle.getPropertyValue('position') : null;
             if ('absolute' !== position && 'relative' !== position && 'fixed' !== position) {
                 element.style.position = 'relative';
             }
@@ -161,15 +162,15 @@
             var lastWidth = size.width;
             var lastHeight = size.height;
             var initialHiddenCheck = true, resetRAF_id;
-            
-            
+
+
             var resetExpandShrink = function () {
                 expandChild.style.width = '100000px';
                 expandChild.style.height = '100000px';
-        
+
                 expand.scrollLeft = 100000;
                 expand.scrollTop = 100000;
-        
+
                 shrink.scrollLeft = 100000;
                 shrink.scrollTop = 100000;
             };
@@ -186,11 +187,11 @@
                         if (!resetRAF_id){
                             resetRAF_id = requestAnimationFrame(function(){
                                 resetRAF_id = 0;
-                                
+
                                 reset();
                             });
                         }
-                        
+
                         return;
                     } else {
                         // Stop checking
@@ -236,11 +237,11 @@
 
             addEvent(expand, 'scroll', onScroll);
             addEvent(shrink, 'scroll', onScroll);
-            
+
             // Fix for custom Elements
             requestAnimationFrame(reset);
         }
-         
+
         if (typeof ResizeObserver !== "undefined") {
             observer = new ResizeObserver(function(element){
                 forEachElement(element, function (elem) {
